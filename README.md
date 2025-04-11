@@ -1,134 +1,257 @@
+# API Documentation
 
-# 🧾 API Documentation - User Authentication
+## Base URL
+`https://sara545.pythonanywhere.com`
 
-Base URL: `https://sara545.pythonanywhere.com/user/`
+## Authentication
 
----
+### Register a new user
+**Endpoint**: `POST /user/register/`
 
-## 📌 Endpoints
-
----
-
-## 📝 1. Register (تسجيل مستخدم جديد)
-
-**Endpoint:** `POST /register/`
-
-**Content-Type:** `multipart/form-data`
-
-### 🔸 Request Body:
-
-| Field                | Type      | Required | Description                                       |
-|---------------------|-----------|----------|---------------------------------------------------|
-| first_name          | string    | ✅       | اسم المستخدم الأول                               |
-| last_name           | string    | ✅       | اسم المستخدم الأخير                              |
-| email               | string    | ✅       | بريد إلكتروني فريد                              |
-| phone               | string    | ✅       | رقم الهاتف                                       |
-| governorate         | string    | ✅       | المحافظة                                          |
-| city                | string    | ✅       | المدينة                                           |
-| user_type           | string    | ✅       | نوع المستخدم (worker, contractor, equipment_owner, material_supplier) |
-| password            | string    | ✅       | كلمة المرور                                      |
-| password_confirmation | string  | ✅       | تأكيد كلمة المرور                                 |
-| profile_image       | file      | ✅       | صورة الملف الشخصي                                |
-
-> **ملاحظة:** هذا الطلب يجب أن يكون `multipart/form-data` لإرسال صورة.
-
----
-
-### ✅ Success Response (201 Created):
+**Request Body**:
 ```json
 {
-  "email": "example@email.com",
-  "user_type": "worker",
-  "first_name": "محمد",
-  "last_name": "علي",
-  "profile_image": "/media/profiles/image.jpg",
-  "message": "User created successfully"
+    "first_name": "string",
+    "last_name": "string",
+    "email": "string",
+    "phone": "string",
+    "governorate": "string",
+    "city": "string",
+    "user_type": "worker|contractor|equipment_owner",
+    "worker_specialization": "string (required if user_type=worker)",
+    "profile_image": "file",
+    "password": "string",
+    "password_confirmation": "string",
+    "price": "number (optional)"
 }
 ```
 
----
-
-### ❌ Error Responses (400 Bad Request):
-
+**Response**:
 ```json
 {
-  "password": ["Passwords must match"]
+    "email": "string",
+    "user_type": "string",
+    "first_name": "string",
+    "last_name": "string",
+    "profile_image": "string (URL)",
+    "token": "string",
+    "message": "string",
+    "worker_specialization": "string (if user_type=worker)"
 }
 ```
 
-أو
+### Login
+**Endpoint**: `POST /user/login/`
 
+**Request Body**:
 ```json
 {
-  "email": ["This field must be unique."]
+    "email": "string",
+    "password": "string"
 }
 ```
 
----
-
-## 🔐 2. Login (تسجيل الدخول)
-
-**Endpoint:** `POST /login/`
-
-**Content-Type:** `application/json`
-
-### 🔸 Request Body:
-
-| Field     | Type   | Required | Description          |
-|-----------|--------|----------|----------------------|
-| email     | string | ✅       | البريد الإلكتروني     |
-| password  | string | ✅       | كلمة المرور           |
-
----
-
-### ✅ Success Response (200 OK):
-
+**Response**:
 ```json
 {
-  "token": "JWT_TOKEN_HERE",
-  "user_type": "worker"
+    "token": "string",
+    "user_type": "string",
+    "email": "string"
 }
 ```
 
----
+### Get Profile Image
+**Endpoint**: `GET /user/profile-image/`
 
-### ❌ Error Responses (400 Bad Request):
+**Headers**:
+```
+Authorization: Token <your_token>
+```
 
+**Response**:
 ```json
 {
-  "non_field_errors": ["البريد الإلكتروني غير مسجل"]
+    "profile_image": "string (URL)"
 }
 ```
 
-أو
+## User Management
 
+### List Workers
+**Endpoint**: `GET /user/workers/`
+
+**Response**:
+```json
+[
+    {
+        "first_name": "string",
+        "last_name": "string",
+        "price": "number",
+        "governorate": "string",
+        "city": "string",
+        "worker_specialization": "string",
+        "profile_image": "string (URL)"
+    }
+]
+```
+
+## Equipment Management
+
+### List Equipment Categories
+**Endpoint**: `GET /equipment/categories/`
+
+**Response**:
+```json
+[
+    {
+        "id": "number",
+        "name": "string",
+        "image": "string (URL)"
+    }
+]
+```
+
+### Get Equipment by Category
+**Endpoint**: `GET /equipment/categories/<category_id>/equipments/`
+
+**Response**:
+```json
+[
+    {
+        "id": "number",
+        "name": "string",
+        "price": "number",
+        "description": "string",
+        "image": "string (URL)",
+        "category": "number"
+    }
+]
+```
+
+### Create Equipment (Equipment Owners only)
+**Endpoint**: `POST /equipment/equipments/create/`
+
+**Headers**:
+```
+Authorization: Token <your_token>
+```
+
+**Request Body**:
 ```json
 {
-  "non_field_errors": ["كلمة السر غير صحيحة"]
+    "name": "string",
+    "price": "number",
+    "description": "string",
+    "image": "file",
+    "category": "number"
 }
 ```
 
----
+**Response**:
+```json
+{
+    "id": "number",
+    "name": "string",
+    "price": "number",
+    "description": "string",
+    "image": "string (URL)",
+    "category": "number"
+}
+```
 
-## 👥 User Types (أنواع المستخدمين)
+## Construction Management
 
-| Value              | الوصف              |
-|--------------------|--------------------|
-| `worker`           | عامل               |
-| `contractor`       | مقاول              |
-| `equipment_owner`  | صاحب معدات         |
-| `material_supplier`| مورد مواد بناء     |
+### List Construction Categories
+**Endpoint**: `GET /construction/categories_construction/`
 
----
+**Response**:
+```json
+[
+    {
+        "id": "number",
+        "name": "string",
+        "image": "string (URL)"
+    }
+]
+```
 
-## 🌐 Base URL
+### List All Construction Projects
+**Endpoint**: `GET /construction/construction_list/`
 
-🔗 `https://sara545.pythonanywhere.com/user/`
+**Response**:
+```json
+[
+    {
+        "id": "number",
+        "name": "string",
+        "price": "number",
+        "description": "string",
+        "image": "string (URL)",
+        "category": "number"
+    }
+]
+```
 
----
+## Models Reference
 
-## ✅ Notes
+### User Model
+```javascript
+{
+    "email": "string (unique)",
+    "phone": "string",
+    "governorate": "string",
+    "city": "string",
+    "user_type": "worker|contractor|equipment_owner",
+    "worker_specialization": "string (optional)",
+    "profile_image": "string (URL)",
+    "first_name": "string",
+    "last_name": "string",
+    "price": "number (optional)"
+}
+```
 
-- الرجاء التأكد من رفع صورة عند تسجيل مستخدم جديد.
-- التوكن الذي يتم إرجاعه من تسجيل الدخول هو JWT، ويُستخدم في التفويض لاحقًا.
-- كل الطلبات يجب أن تكون إلى روابط تبدأ بـ `/user/`.
+### Equipment Model
+```javascript
+{
+    "owner": "number (user ID)",
+    "name": "string",
+    "price": "number",
+    "description": "string",
+    "image": "string (URL)",
+    "category": "number"
+}
+```
+
+### Construction Model
+```javascript
+{
+    "name": "string",
+    "price": "number",
+    "description": "string",
+    "image": "string (URL)",
+    "category": "number"
+}
+```
+
+## Enumerations
+
+### User Types
+```javascript
+[
+    {"value": "worker", "label": "عامل"},
+    {"value": "contractor", "label": "مقاول"},
+    {"value": "equipment_owner", "label": "صاحب معدات"}
+]
+```
+
+### Worker Specializations
+```javascript
+[
+    {"value": "plumbing", "label": "عامل سباكة"},
+    {"value": "carpentry", "label": "عامل نجارة"},
+    {"value": "blacksmith", "label": "عامل حدادة"},
+    {"value": "electrician", "label": "عامل كهرباء"},
+    {"value": "plaster", "label": "عامل محارة"},
+    {"value": "painter", "label": "عامل نقاشة"}
+]
+```

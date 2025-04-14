@@ -192,6 +192,85 @@ Authorization: Token <your_token>
 ]
 ```
 
+## 📦 إنشاء مادة بناء جديدة (Create Construction)
+
+**Endpoint:**  
+`POST construction/create/`
+
+**Requires Authentication:** ✅  
+Authorization: `Token <your_token>`
+
+### 🎯 الوصف
+يتيح هذا الاندبوينت لصاحب مواد البناء (`construction_owner`) إضافة مادة بناء جديدة إلى النظام.
+
+---
+
+### 🛠 Headers
+
+| Key           | Value               |
+|---------------|---------------------|
+| Authorization | Token <your_token>  |
+| Content-Type  | multipart/form-data |
+
+---
+
+### 📩 البيانات المطلوبة (Form Data)
+
+| الحقل        | النوع      | مطلوب؟ | الوصف                              |
+|--------------|------------|--------|-------------------------------------|
+| price        | decimal    | ✅     | سعر مادة البناء (مثلاً: 2500.50)    |
+| description  | string     | ✅     | وصف لمادة البناء                    |
+| image        | image file | ✅     | صورة لمادة البناء                   |
+| category     | integer    | ✅     | ID الخاص بفئة مادة البناء (CategoryConstruction) |
+
+**🔒 ملاحظة:**  
+- الـ owner لا يتم إدخاله من العميل، بل يتم تعيينه تلقائيًا من المستخدم المسجل حاليًا.
+
+---
+
+### 📤 مثال على الطلب (Postman)
+
+**POST** `construction/create/`
+
+**Headers:**
+```http
+Authorization: Token 13a2d7fbb5d64075a80e3e0f5e98d8ab
+```
+
+**Body (form-data):**
+```
+price: 3000.00
+description: رمل ناعم للتشطيب
+image: <اختيار صورة>
+category: 2
+```
+
+---
+
+### ✅ الاستجابة الناجحة
+
+```json
+{
+  "id": 5,
+  "price": "3000.00",
+  "description": "رمل ناعم للتشطيب",
+  "image": "http://localhost:8000/media/construction_imeges/filename.jpg",
+  "category": 2
+}
+```
+
+---
+
+### ❌ الأخطاء المتوقعة
+
+| الحالة | الكود | الرسالة                                      |
+|--------|------|-----------------------------------------------|
+| غير مسموح | 403  | `{"error": "Unauthorized"}`                |
+| غير صالح | 400  | تفاصيل الحقول الغير صالحة                  |
+
+---
+
+
 ## Models Reference
 
 ### User Model
@@ -210,6 +289,8 @@ Authorization: Token <your_token>
 }
 ```
 
+
+
 ### Equipment Model
 ```javascript
 {
@@ -222,16 +303,87 @@ Authorization: Token <your_token>
 }
 ```
 
-### Construction Model
-```javascript
+ 
+ 
+
+# Order API Documentation
+
+## 🛠 إنشاء طلب (Create Order)
+**POST** `/orders/create/`
+
+### Headers
+```
+Authorization: Token <your_token>
+Content-Type: application/json
+```
+
+### Request Body
+```json
 {
-    "name": "string",
-    "price": "number",
-    "description": "string",
-    "image": "string (URL)",
-    "category": "number"
+  "item_type": "worker | equipment | construction",
+  "item_id": 1
 }
 ```
+
+### Response (مثال)
+```json
+{
+  "message": "تم إرسال الطلب بنجاح ✅",
+  "order_id": 12,
+  "item_type": "worker",
+  "category": "سباك",
+  "price": "250.00",
+  "created_at": "2025-04-14T22:10:15.123Z"
+}
+```
+
+---
+
+## 🛒 الطلبات التي قمت بها (My Purchases)
+**GET** `/orders/my-purchases/`
+
+### Headers
+```
+Authorization: Token <your_token>
+```
+
+### Response
+```json
+[
+  {
+    "id": 12,
+    "item_type": "worker",
+    "item_id": 1,
+    "category": "سباك",
+    "image": "http://example.com/media/orders/profile.jpg",
+    "price": "250.00",
+    "created_at": "2025-04-14T22:10:15.123Z",
+    "buyer_name": "أحمد علي"
+  },
+  ...
+]
+```
+
+---
+
+## 📥 الطلبات الواردة إليك (Incoming Orders)
+**GET** `/orders/incoming/`
+
+### Headers
+```
+Authorization: Token <your_token>
+```
+
+### Response
+نفس شكل الاستجابة كما في "my-purchases".
+
+---
+
+## 📦 ملاحظات
+- `item_type`: يمكن أن يكون `worker`, `equipment`, أو `construction`
+- النظام تلقائيًا يملأ البيانات (`price`, `category`, `image`) حسب نوع المنتج أو العامل.
+- في حالة `worker`، يتم جلب الصورة والسعر من حساب العامل (CustomUser).
+
 
 ## Enumerations
 

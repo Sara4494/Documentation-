@@ -374,7 +374,22 @@ Authorization: Token <your_token>
 Authorization: Token <your_token>
 ```
 
+
 ### Response
+```json
+ [{
+    "id": 5,
+    "item_type": "worker",  // ممكن تكون: worker - equipment - construction
+    "item_id": 23,
+    "category": "سباك",
+    "image": "http://yourdomain.com/media/orders/worker_23.png",
+    "price": "150.00",
+    "created_at": "2025-04-14T21:10:35.123Z",
+    "buyer_name": "Ali Ahmed"
+  },
+  ...
+ ]
+```
 نفس شكل الاستجابة كما في "my-purchases".
 
 ---

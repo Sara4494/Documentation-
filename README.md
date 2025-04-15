@@ -393,6 +393,8 @@ Authorization: Token <your_token>
     {"value": "worker", "label": "عامل"},
     {"value": "contractor", "label": "مقاول"},
     {"value": "equipment_owner", "label": "صاحب معدات"}
+    {"value": "construction_owner", "label": "مواد  بناء'"}
+
 ]
 ```
 
